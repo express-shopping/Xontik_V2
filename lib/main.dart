@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const XontikApp());
-}
+void main() => runApp(const XontikApp());
 
 class XontikApp extends StatelessWidget {
   const XontikApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,7 +18,6 @@ class XontikApp extends StatelessWidget {
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,20 +51,16 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _btn(IconData icon, String txt) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(border: Border.all(color: Colors.white12), borderRadius: BorderRadius.circular(5)),
-      child: Row(children: [Icon(icon), Expanded(child: Text(txt, textAlign: TextAlign.center))]),
-    );
-  }
+  Widget _btn(IconData icon, String txt) => Container(
+    margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(border: Border.all(color: Colors.white12), borderRadius: BorderRadius.circular(5)),
+    child: Row(children: [Icon(icon), Expanded(child: Text(txt, textAlign: TextAlign.center))]),
+  );
 }
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +89,6 @@ class FeedScreen extends StatelessWidget {
 class VideoItem extends StatefulWidget {
   final int index;
   const VideoItem({super.key, required this.index});
-
   @override
   State<VideoItem> createState() => _VideoItemState();
 }
@@ -105,7 +96,6 @@ class VideoItem extends StatefulWidget {
 class _VideoItemState extends State<VideoItem> {
   bool liked = false;
   bool followed = false;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -139,20 +129,14 @@ class _VideoItemState extends State<VideoItem> {
       ],
     );
   }
-
-  Widget _avatar() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        const CircleAvatar(radius: 25, backgroundColor: Colors.white, child: Icon(Icons.person, color: Colors.black)),
-        if (!followed)
-          Positioned(bottom: -8, left: 15, child: GestureDetector(onTap: () => setState(() => followed = true), child: Container(decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.add, size: 20, color: Colors.white)))),
-      ],
-    );
-  }
-
-  Widget _action(IconData icon, String label, Color col, VoidCallback onTap) {
-    return GestureDetector(onTap: onTap, child: Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Column(children: [Icon(icon, size: 38, color: col), Text(label, style: const TextStyle(fontSize: 12))])));
-  }
+  Widget _avatar() => Stack(
+    clipBehavior: Clip.none,
+    children: [
+      const CircleAvatar(radius: 25, backgroundColor: Colors.white, child: Icon(Icons.person, color: Colors.black)),
+      if (!followed)
+        Positioned(bottom: -8, left: 15, child: GestureDetector(onTap: () => setState(() => followed = true), child: Container(decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.add, size: 20, color: Colors.white)))),
+    ],
+  );
+  Widget _action(IconData icon, String label, Color col, VoidCallback onTap) => GestureDetector(onTap: onTap, child: Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Column(children: [Icon(icon, size: 38, color: col), Text(label, style: const TextStyle(fontSize: 12))])));
 }
 
