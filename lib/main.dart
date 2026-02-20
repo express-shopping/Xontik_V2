@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const XontikFinalApp());
+void main() {
+  runApp(const XontikApp());
+}
 
-class XontikFinalApp extends StatelessWidget {
-  const XontikFinalApp({super.key});
+class XontikApp extends StatelessWidget {
+  const XontikApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +14,13 @@ class XontikFinalApp extends StatelessWidget {
       title: 'XONTIK PRO',
       locale: const Locale('ar', 'AE'),
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-      home: const TikTokLoginScreen(),
+      home: const LoginScreen(),
     );
   }
 }
 
-// --- واجهة تسجيل دخول احترافية ---
-class TikTokLoginScreen extends StatelessWidget {
-  const TikTokLoginScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +33,10 @@ class TikTokLoginScreen extends StatelessWidget {
             const SizedBox(height: 10),
             const Text("سجل دخولك لاستكشاف الإبداع", style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 40),
-            _authOption(Icons.phone_android, "الهاتف / البريد الإلكتروني"),
-            _authOption(Icons.g_mobiledata, "المتابعة باستخدام Google"),
-            _authOption(Icons.facebook, "المتابعة باستخدام Facebook"),
+            _btn(Icons.phone_android, "الهاتف / البريد الإلكتروني"),
+            _btn(Icons.g_mobiledata, "المتابعة باستخدام Google"),
+            _btn(Icons.facebook, "المتابعة باستخدام Facebook"),
             const Spacer(),
-            // زر إنشاء حساب صغير في الأسفل كما في تيك توك
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Row(
@@ -44,7 +44,7 @@ class TikTokLoginScreen extends StatelessWidget {
                 children: [
                   const Text("ليس لديك حساب؟", style: TextStyle(color: Colors.white54)),
                   TextButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TikTokFeed())),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FeedScreen())),
                     child: const Text("أنشئ حساباً", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
                   ),
                 ],
@@ -56,24 +56,18 @@ class TikTokLoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _authOption(IconData icon, String label) {
+  Widget _btn(IconData icon, String txt) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(border: Border.all(color: Colors.white12), borderRadius: BorderRadius.circular(5)),
-      child: Row(
-        children: [
-          Icon(icon, size: 24),
-          Expanded(child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14))),
-        ],
-      ),
+      child: Row(children: [Icon(icon), Expanded(child: Text(txt, textAlign: TextAlign.center))]),
     );
   }
 }
 
-// --- واجهة الفيديوهات الرئيسية ---
-class TikTokFeed extends StatelessWidget {
-  const TikTokFeed({super.key});
+class FeedScreen extends StatelessWidget {
+  const FeedScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +75,7 @@ class TikTokFeed extends StatelessWidget {
       body: PageView.builder(
         scrollDirection: Axis.vertical,
         itemCount: 10,
-        itemBuilder: (context, index) => VideoStack(index: index),
+        itemBuilder: (context, index) => VideoItem(index: index),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
@@ -100,42 +94,36 @@ class TikTokFeed extends StatelessWidget {
   }
 }
 
-class VideoStack extends StatefulWidget {
+class VideoItem extends StatefulWidget {
   final int index;
-  const VideoStack({super.key, required this.index});
+  const VideoItem({super.key, required this.index});
 
   @override
-  State<VideoStack> createState() => _VideoStackState();
+  State<VideoItem> createState() => _VideoItemState();
 }
 
-class _VideoStackState extends State<VideoStack> {
-  bool isLiked = false;
-  bool isFollowed = false;
+class _VideoItemState extends State<VideoItem> {
+  bool liked = false;
+  bool followed = false;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(color: Colors.black, child: const Center(child: Icon(Icons.play_arrow, size: 80, color: Colors.white10))),
-        
-        // الأزرار الجانبية بجهة اليسار وتتحرك مع كل فيديو
         Positioned(
           left: 15,
           bottom: 100,
           child: Column(
             children: [
-              _profileAvatar(),
+              _avatar(),
               const SizedBox(height: 25),
-              _actionIcon(isLiked ? Icons.favorite : Icons.favorite_border, "50K", isLiked ? Colors.red : Colors.white, () {
-                setState(() => isLiked = !isLiked);
-              }),
-              _actionIcon(Icons.comment, "1.2K", Colors.white, () {}),
-              _actionIcon(Icons.share, "مشاركة", Colors.white, () {}),
+              _action(liked ? Icons.favorite : Icons.favorite_border, "50K", liked ? Colors.red : Colors.white, () => setState(() => liked = !liked)),
+              _action(Icons.comment, "1.2K", Colors.white, () {}),
+              _action(Icons.share, "مشاركة", Colors.white, () {}),
             ],
           ),
         ),
-        
-        // الوصف أسفل اليمين
         Positioned(
           right: 15,
           bottom: 30,
@@ -152,40 +140,19 @@ class _VideoStackState extends State<VideoStack> {
     );
   }
 
-  Widget _profileAvatar() {
+  Widget _avatar() {
     return Stack(
       clipBehavior: Clip.none,
       children: [
         const CircleAvatar(radius: 25, backgroundColor: Colors.white, child: Icon(Icons.person, color: Colors.black)),
-        if (!isFollowed)
-          Positioned(
-            bottom: -8, left: 15,
-            child: GestureDetector(
-              onTap: () => setState(() => isFollowed = true),
-              child: Container(
-                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                child: const Icon(Icons.add, size: 20, color: Colors.white),
-              ),
-            ),
-          ),
+        if (!followed)
+          Positioned(bottom: -8, left: 15, child: GestureDetector(onTap: () => setState(() => followed = true), child: Container(decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.add, size: 20, color: Colors.white)))),
       ],
     );
   }
 
-  Widget _actionIcon(IconData icon, String label, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          children: [
-            Icon(icon, size: 38, color: color),
-            const SizedBox(height: 4),
-            Text(label, style: const TextStyle(fontSize: 12)),
-          ],
-        ),
-      ),
-    );
+  Widget _action(IconData icon, String label, Color col, VoidCallback onTap) {
+    return GestureDetector(onTap: onTap, child: Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Column(children: [Icon(icon, size: 38, color: col), Text(label, style: const TextStyle(fontSize: 12))])));
   }
 }
 
