@@ -1,292 +1,116 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const XontikUltimateApp());
+void main() => runApp(const XontikPro());
 
-class XontikUltimateApp extends StatelessWidget {
-  const XontikUltimateApp({super.key});
-
+class XontikPro extends StatelessWidget {
+  const XontikPro({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'XONTIK PRO',
-      // دعم اللغة العربية بشكل صحيح
       locale: const Locale('ar', 'AE'),
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        primaryColor: Colors.redAccent,
-      ),
-      home: const LoginScreen(),
+      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
+      home: const LoginView(),
     );
   }
 }
 
-// --- واجهة تسجيل دخول مطورة ---
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
-
+class LoginView extends StatelessWidget {
+  const LoginView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.red.withOpacity(0.1), Colors.black],
+      body: Column(
+        children: [
+          const Spacer(),
+          const Text("XONTIK", style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 50),
+          _authBtn("الهاتف / البريد الإلكتروني"),
+          _authBtn("المتابعة باستخدام Google"),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: TextButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FeedView())),
+              child: const Text("أنشئ حساباً", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            ),
           ),
-        ),
-        child: SafeArea(
+        ],
+      ),
+    );
+  }
+  Widget _authBtn(String t) => Container(
+    margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(border: Border.all(color: Colors.white24), borderRadius: BorderRadius.circular(5)),
+    child: Center(child: Text(t)),
+  );
+}
+
+class FeedView extends StatelessWidget {
+  const FeedView({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemBuilder: (context, index) => VideoStack(i: index),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'اكتشف'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box, size: 40), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'الرسائل'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'الملف'),
+        ],
+      ),
+    );
+  }
+}
+
+class VideoStack extends StatefulWidget {
+  final int i;
+  const VideoStack({super.key, required this.i});
+  @override
+  State<VideoStack> createState() => _VideoStackState();
+}
+
+class _VideoStackState extends State<VideoStack> {
+  bool liked = false;
+  bool follow = false;
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(color: Colors.black, child: const Center(child: Icon(Icons.play_arrow, size: 80, color: Colors.white10))),
+        // الأزرار الجانبية بجهة اليسار
+        Positioned(
+          left: 15,
+          bottom: 100,
           child: Column(
             children: [
-              const Spacer(),
-              const Text(
-                "XONTIK",
-                style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.black,
-                  letterSpacing: 8,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text("سجل دخولك لمتابعة الإبداع", 
-                style: TextStyle(color: Colors.white70, fontSize: 16)),
-              const SizedBox(height: 50),
-              
-              _authButton(Icons.person_outline, "استخدام الهاتف / البريد الإلكتروني", () {}),
-              _authButton(Icons.g_mobiledata, "المتابعة باستخدام Google", () {}),
-              _authButton(Icons.facebook, "المتابعة باستخدام Facebook", () {}),
-              
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("ليس لديك حساب؟", style: TextStyle(color: Colors.white54)),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const MainFeed()),
-                        );
-                      },
-                      child: const Text("إنشاء حساب", 
-                        style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-              ),
+              _avatar(),
+              const SizedBox(height: 25),
+              _action(liked ? Icons.favorite : Icons.favorite_border, "50K", liked ? Colors.red : Colors.white, () => setState(() => liked = !liked)),
+              _action(Icons.comment, "1.2K", Colors.white, () {}),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _authButton(IconData icon, String text, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 35, vertical: 8),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          border: Border.all(color: Colors.white12),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 28),
-            Expanded(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// --- واجهة الفيديوهات الرئيسية ---
-class MainFeed extends StatefulWidget {
-  const MainFeed({super.key});
-
-  @override
-  State<MainFeed> createState() => _MainFeedState();
-}
-
-class _MainFeedState extends State<MainFeed> {
-  int _selectedIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: PageView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: 10,
-        itemBuilder: (context, index) => VideoPlaceholder(index: index),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white54,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'الرئيسية'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'اكتشف'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box, size: 35, color: Colors.white), 
-            label: ''
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.message_outlined), label: 'الرسائل'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'الملف'),
-        ],
-      ),
-    );
-  }
-}
-
-class VideoPlaceholder extends StatefulWidget {
-  final int index;
-  const VideoPlaceholder({super.key, required this.index});
-
-  @override
-  State<VideoPlaceholder> createState() => _VideoPlaceholderState();
-}
-
-class _VideoPlaceholderState extends State<VideoPlaceholder> {
-  bool isLiked = false;
-  bool isFollowed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    // استخدام Directionality لضمان ثبات العناصر مهما كانت لغة الجهاز
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // محاكي لمشغل الفيديو
-          Container(
-            color: Colors.black,
-            child: Center(
-              child: Icon(Icons.play_arrow_rounded, 
-                size: 100, color: Colors.white.withOpacity(0.1)),
-            ),
-          ),
-          
-          // التدرج الأسود في الأسفل لجعل النص واضحاً
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.transparent, Colors.black87],
-                ),
-              ),
-            ),
-          ),
-
-          // الأزرار الجانبية (في جهة اليسار)
-          Positioned(
-            left: 10,
-            bottom: 100,
-            child: Column(
-              children: [
-                _buildAvatar(),
-                const SizedBox(height: 25),
-                _sideAction(
-                  isLiked ? Icons.favorite : Icons.favorite, 
-                  "250K", 
-                  isLiked ? Colors.red : Colors.white, 
-                  () => setState(() => isLiked = !isLiked)
-                ),
-                _sideAction(Icons.comment_rounded, "1.2K", Colors.white, () {}),
-                _sideAction(Icons.share_rounded, "مشاركة", Colors.white, () {}),
-              ],
-            ),
-          ),
-
-          // وصف الفيديو (في جهة اليمين)
-          Positioned(
-            right: 15,
-            bottom: 25,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "@user_xontik_${widget.index}",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Text(
-                    "هذا الفيديو رقم ${widget.index} المصمم لمجتمع XONTIK الرائع! #إبداع #فلاتر",
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvatar() {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(1.5),
-          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-          child: const CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.grey,
-            child: Icon(Icons.person, color: Colors.white),
-          ),
-        ),
-        if (!isFollowed)
-          Positioned(
-            bottom: -10,
-            child: GestureDetector(
-              onTap: () => setState(() => isFollowed = true),
-              child: Container(
-                decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                child: const Icon(Icons.add, size: 20, color: Colors.white),
-              ),
-            ),
-          ),
+        Positioned(right: 15, bottom: 30, child: Text("@user_xontik_${widget.i}", style: const TextStyle(fontWeight: FontWeight.bold))),
       ],
     );
   }
-
-  Widget _sideAction(IconData icon, String label, Color color, VoidCallback onTap) {
-    return Column(
-      children: [
-        IconButton(
-          onPressed: onTap,
-          icon: Icon(icon, size: 38, color: color),
-        ),
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 15),
-      ],
-    );
-  }
+  Widget _avatar() => Stack(
+    clipBehavior: Clip.none,
+    children: [
+      const CircleAvatar(radius: 25, child: Icon(Icons.person)),
+      if (!follow) Positioned(bottom: -5, left: 15, child: GestureDetector(onTap: () => setState(() => follow = true), child: const CircleAvatar(radius: 10, backgroundColor: Colors.red, child: Icon(Icons.add, size: 15)))),
+    ],
+  );
+  Widget _action(IconData i, String l, Color c, VoidCallback o) => GestureDetector(onTap: o, child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Column(children: [Icon(i, size: 35, color: c), Text(l, style: const TextStyle(fontSize: 10))])));
 }
 
