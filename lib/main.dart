@@ -1,248 +1,168 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const XontikMasterpiece());
+void main() => runApp(const XontikSuperApp());
 
-class XontikMasterpiece extends StatelessWidget {
-  const XontikMasterpiece({super.key});
+class XontikSuperApp extends StatelessWidget {
+  const XontikSuperApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Colors.black,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey,
-        ),
-      ),
-      home: const MainTikTokScaffold(),
+      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
+      home: const AuthScreen(),
     );
   }
 }
 
-class MainTikTokScaffold extends StatefulWidget {
-  const MainTikTokScaffold({super.key});
-  @override
-  State<MainTikTokScaffold> createState() => _MainTikTokScaffoldState();
-}
-
-class _MainTikTokScaffoldState extends State<MainTikTokScaffold> {
-  int _selectedIndex = 0;
-
+// --- 1. واجهة تسجيل الدخول وإنشاء الحساب ---
+class AuthScreen extends StatelessWidget {
+  const AuthScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          const TikTokFeedView(), // شاشة الفيديوهات الرئيسية
-          const Center(child: Text("اكتشف الصيحات الجديدة")),
-          const Center(child: Text("الكاميرا قيد التطوير")),
-          const Center(child: Text("صندوق الوارد فارغ")),
-          const Center(child: Text("الملف الشخصي الاحترافي")),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'الرئيسية'),
-          const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'اكتشف'),
-          BottomNavigationBarItem(icon: _buildPlusIcon(), label: ''),
-          const BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'صندوق الوارد'),
-          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'الملف'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPlusIcon() {
-    return SizedBox(
-      width: 45,
-      height: 28,
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(left: 10),
-            width: 38,
-            decoration: BoxDecoration(color: const Color(0xFF2af1f7), borderRadius: BorderRadius.circular(7)),
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 10),
-            width: 38,
-            decoration: BoxDecoration(color: const Color(0xFFeb3349), borderRadius: BorderRadius.circular(7)),
-          ),
-          Center(
-            child: Container(
-              height: double.infinity,
-              width: 38,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(7)),
-              child: const Icon(Icons.add, color: Colors.black, size: 20),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// --- محرك الفيديوهات (TikTok Style) ---
-class TikTokFeedView extends StatelessWidget {
-  const TikTokFeedView({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return PageView.builder(
-      scrollDirection: Axis.vertical,
-      itemBuilder: (context, index) => VideoItem(index: index),
-    );
-  }
-}
-
-class VideoItem extends StatefulWidget {
-  final int index;
-  const VideoItem({super.key, required this.index});
-  @override
-  State<VideoItem> createState() => _VideoItemState();
-}
-
-class _VideoItemState extends State<VideoItem> {
-  bool isLiked = false;
-  bool isFollowed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // محاكاة الفيديو مع تدرج لوني فخم
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.blueGrey[900]!, Colors.black],
-            ),
-          ),
-          child: const Center(child: Icon(Icons.play_circle_fill, size: 80, color: Colors.white12)),
-        ),
-        
-        // الجزء العلوي: For You & Following
-        const Positioned(
-          top: 40,
-          left: 0, right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("أتابع", style: TextStyle(color: Colors.white54, fontSize: 16)),
-              SizedBox(width: 20),
-              Text("لك", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(width: 4),
-              Icon(Icons.circle, size: 5, color: Colors.white),
-            ],
-          ),
-        ),
-
-        // الأزرار التفاعلية بجهة اليسار (TikTok Layout)
-        Positioned(
-          left: 10,
-          bottom: 100,
-          child: Column(
-            children: [
-              _buildProfile(),
-              const SizedBox(height: 20),
-              _buildSideAction(isLiked ? Icons.favorite : Icons.favorite_border, "5.2M", isLiked ? Colors.red : Colors.white, () {
-                setState(() => isLiked = !isLiked);
-              }),
-              _buildSideAction(Icons.chat_bubble, "15.4K", Colors.white, () {}),
-              _buildSideAction(Icons.bookmark, "90K", Colors.white, () {}),
-              _buildSideAction(Icons.share, "مشاركة", Colors.white, () {}),
-              const SizedBox(height: 20),
-              _buildMusicDisc(), // أسطوانة الموسيقى الدوارة
-            ],
-          ),
-        ),
-
-        // وصف الفيديو والمعلومات بجهة اليمين
-        Positioned(
-          right: 15,
-          bottom: 25,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("@Xontik_Creator", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
-              const SizedBox(height: 10),
-              const SizedBox(
-                width: 250,
-                child: Text("هذه هي النسخة القاضية من تطبيق XONTIK.. إبداع بلا حدود! 🔥 #فلوتر #تيكتوك", 
-                style: TextStyle(color: Colors.white, fontSize: 14), overflow: TextOverflow.ellipsis, maxLines: 2),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: const [
-                  Icon(Icons.music_note, size: 15, color: Colors.white),
-                  SizedBox(width: 5),
-                  Text("الصوت الأصلي - مبرمج Xontik", style: TextStyle(color: Colors.white, fontSize: 13)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfile() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(2),
-          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-          child: const CircleAvatar(radius: 24, backgroundColor: Colors.black, child: Icon(Icons.person, color: Colors.white)),
-        ),
-        if (!isFollowed)
-          Positioned(
-            bottom: -8, left: 14,
-            child: GestureDetector(
-              onTap: () => setState(() => isFollowed = true),
-              child: Container(
-                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                child: const Icon(Icons.add, size: 20, color: Colors.white),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildSideAction(IconData icon, String label, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+      body: Container(
+        padding: const EdgeInsets.all(40),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 35, color: color),
-            const SizedBox(height: 5),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            const Spacer(),
+            const Text("XONTIK", style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, letterSpacing: 5)),
+            const SizedBox(height: 50),
+            _authBtn(Icons.facebook, "المتابعة باستخدام Facebook", Colors.blue),
+            _authBtn(Icons.g_mobiledata, "المتابعة باستخدام Google", Colors.white10),
+            _authBtn(Icons.apple, "المتابعة باستخدام Apple", Colors.white10),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MainNavigation())),
+              child: RichText(text: const TextSpan(text: "ليس لديك حساب؟ ", children: [TextSpan(text: "أنشئ حساباً", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold))])),
+            ),
           ],
         ),
       ),
     );
   }
+  Widget _authBtn(IconData i, String t, Color c) => Container(
+    margin: const EdgeInsets.only(bottom: 15),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.white12)),
+    child: Row(children: [Icon(i), Expanded(child: Text(t, textAlign: TextAlign.center))]),
+  );
+}
 
-  Widget _buildMusicDisc() {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        gradient: SweepGradient(colors: [Colors.grey[800]!, Colors.black, Colors.grey[800]!]),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white24, width: 8),
+// --- 2. التنقل الرئيسي (الرئيسية، بث مباشر، محفظة) ---
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _idx = 0;
+  final List<Widget> _screens = [const TikTokFeed(), const Center(child: Text("اكتشف")), const LiveStreamScreen(), const Center(child: Text("الرسائل")), const ProfileScreen()];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_idx],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _idx,
+        onTap: (i) => setState(() => _idx = i),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "الرئيسية"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "اكتشف"),
+          BottomNavigationBarItem(icon: Icon(Icons.live_tv, color: Colors.red), label: "بث مباشر"),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "صندوق الوارد"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "الملف"),
+        ],
       ),
-      child: const Icon(Icons.music_note, size: 20, color: Colors.white),
     );
   }
+}
+
+// --- 3. واجهة البث المباشر (LIVE) ---
+class LiveStreamScreen extends StatelessWidget {
+  const LiveStreamScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(color: Colors.blueGrey[900]),
+        const Positioned(top: 50, left: 20, child: Badge(label: Text("LIVE"), backgroundColor: Colors.red)),
+        const Center(child: Icon(Icons.person, size: 100, color: Colors.white10)),
+        Positioned(bottom: 20, left: 20, child: Row(children: [
+          Container(width: 200, height: 40, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(20)), child: const TextField(decoration: InputDecoration(hintText: " أرسل تعليقاً...", border: InputBorder.none, contentPadding: EdgeInsets.only(left: 15)))),
+          const SizedBox(width: 10),
+          const Icon(Icons.card_giftcard, color: Colors.orange, size: 30),
+        ])),
+      ],
+    );
+  }
+}
+
+// --- 4. الملف الشخصي والمحفظة والإعدادات ---
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.black, title: const Text("الملف الشخصي"), actions: [
+        IconButton(icon: const Icon(Icons.settings), onPressed: () => _showSettings(context)),
+      ]),
+      body: Column(
+        children: [
+          const SizedBox(height: 20),
+          const CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
+          const SizedBox(height: 15),
+          const Text("@Xontik_User", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [_stat("1.2M", "متابع"), _stat("500", "أتابع")]),
+          const SizedBox(height: 20),
+          _walletCard(context),
+          const Divider(),
+          Expanded(child: GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3), itemCount: 9, itemBuilder: (c, i) => Container(margin: const EdgeInsets.all(1), color: Colors.white10, child: const Icon(Icons.play_arrow)))),
+        ],
+      ),
+    );
+  }
+
+  Widget _stat(String v, String l) => Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [Text(v, style: const TextStyle(fontWeight: FontWeight.bold)), Text(l, style: const TextStyle(color: Colors.grey))]));
+
+  Widget _walletCard(BuildContext context) => Container(
+    margin: const EdgeInsets.all(20),
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(gradient: const LinearGradient(colors: [Colors.purple, Colors.blue]), borderRadius: BorderRadius.circular(15)),
+    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [Text("رصيد المحفظة"), Text("\$1,250.00", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))]),
+      ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black), child: const Text("ربط المحفظة")),
+    ]),
+  );
+
+  void _showSettings(BuildContext context) {
+    showModalBottomSheet(context: context, builder: (c) => Container(
+      color: Colors.grey[900],
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(leading: const Icon(Icons.lock), title: const Text("الخصوصية")),
+        ListTile(leading: const Icon(Icons.wallet), title: const Text("إعدادات المحفظة والعملات")),
+        ListTile(leading: const Icon(Icons.language), title: const Text("اللغة")),
+        ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: const Text("تسجيل الخروج"), onTap: () => Navigator.popUntil(context, (route) => route.isFirst)),
+      ]),
+    ));
+  }
+}
+
+// --- 5. محرك الفيديوهات (Feed) ---
+class TikTokFeed extends StatelessWidget {
+  const TikTokFeed({super.key});
+  @override
+  Widget build(BuildContext context) => PageView.builder(scrollDirection: Axis.vertical, itemBuilder: (c, i) => Container(
+    color: Colors.black,
+    child: Stack(children: [
+      const Center(child: Icon(Icons.play_arrow, size: 100, color: Colors.white10)),
+      Positioned(right: 15, bottom: 100, child: Column(children: const [Icon(Icons.favorite, size: 40), Text("2M"), SizedBox(height: 20), Icon(Icons.comment, size: 40), Text("10K")])),
+    ]),
+  ));
 }
 
