@@ -1,0 +1,19 @@
+name: Xontik Full Power
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true # لتسريع البناء وتوفير الذاكرة
+      - run: |
+          flutter pub get
+          flutter build apk --debug --no-tree-shake-icons
+      - name: Upload
+        uses: actions/upload-artifact@v3 # الإصدار المستقر v3
+        with:
+          name: Xontik-App
+          path: build/app/outputs/flutter-apk/*.apk
