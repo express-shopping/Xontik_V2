@@ -23,7 +23,7 @@ class LoginView extends StatelessWidget {
       body: Column(
         children: [
           const Spacer(),
-          const Text("XONTIK", style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
+          const Text("XONTIK", style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold, letterSpacing: 3)),
           const SizedBox(height: 50),
           _authBtn("الهاتف / البريد الإلكتروني"),
           _authBtn("المتابعة باستخدام Google"),
@@ -32,7 +32,7 @@ class LoginView extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FeedView())),
-              child: const Text("أنشئ حساباً", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+              child: const Text("أنشئ حساباً (اضغط هنا للدخول)", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -42,8 +42,8 @@ class LoginView extends StatelessWidget {
   Widget _authBtn(String t) => Container(
     margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
     padding: const EdgeInsets.all(15),
-    decoration: BoxDecoration(border: Border.all(color: Colors.white24), borderRadius: BorderRadius.circular(5)),
-    child: Center(child: Text(t)),
+    decoration: BoxDecoration(border: Border.all(color: Colors.white24), borderRadius: BorderRadius.circular(8)),
+    child: Center(child: Text(t, style: const TextStyle(fontSize: 14))),
   );
 }
 
@@ -54,11 +54,13 @@ class FeedView extends StatelessWidget {
     return Scaffold(
       body: PageView.builder(
         scrollDirection: Axis.vertical,
+        itemCount: 20,
         itemBuilder: (context, index) => VideoStack(i: index),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
         selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white38,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
@@ -87,7 +89,7 @@ class _VideoStackState extends State<VideoStack> {
     return Stack(
       children: [
         Container(color: Colors.black, child: const Center(child: Icon(Icons.play_arrow, size: 80, color: Colors.white10))),
-        // الأزرار الجانبية بجهة اليسار
+        // الأزرار الجانبية بجهة اليسار (تتحرك مع كل فيديو)
         Positioned(
           left: 15,
           bottom: 100,
@@ -97,20 +99,33 @@ class _VideoStackState extends State<VideoStack> {
               const SizedBox(height: 25),
               _action(liked ? Icons.favorite : Icons.favorite_border, "50K", liked ? Colors.red : Colors.white, () => setState(() => liked = !liked)),
               _action(Icons.comment, "1.2K", Colors.white, () {}),
+              _action(Icons.share, "مشاركة", Colors.white, () {}),
             ],
           ),
         ),
-        Positioned(right: 15, bottom: 30, child: Text("@user_xontik_${widget.i}", style: const TextStyle(fontWeight: FontWeight.bold))),
+        // الوصف بجهة اليمين
+        Positioned(
+          right: 15,
+          bottom: 30,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("@user_xontik_${widget.i}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 5),
+              const Text("تصميم راقٍ بجهة اليسار 🚀", style: TextStyle(fontSize: 14)),
+            ],
+          ),
+        ),
       ],
     );
   }
   Widget _avatar() => Stack(
     clipBehavior: Clip.none,
     children: [
-      const CircleAvatar(radius: 25, child: Icon(Icons.person)),
-      if (!follow) Positioned(bottom: -5, left: 15, child: GestureDetector(onTap: () => setState(() => follow = true), child: const CircleAvatar(radius: 10, backgroundColor: Colors.red, child: Icon(Icons.add, size: 15)))),
+      const CircleAvatar(radius: 26, backgroundColor: Colors.white, child: CircleAvatar(radius: 24, backgroundColor: Colors.black, child: Icon(Icons.person))),
+      if (!follow) Positioned(bottom: -8, left: 16, child: GestureDetector(onTap: () => setState(() => follow = true), child: const CircleAvatar(radius: 10, backgroundColor: Colors.red, child: Icon(Icons.add, size: 15, color: Colors.white)))),
     ],
   );
-  Widget _action(IconData i, String l, Color c, VoidCallback o) => GestureDetector(onTap: o, child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Column(children: [Icon(i, size: 35, color: c), Text(l, style: const TextStyle(fontSize: 10))])));
+  Widget _action(IconData i, String l, Color c, VoidCallback o) => GestureDetector(onTap: o, child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Column(children: [Icon(i, size: 38, color: c), const SizedBox(height: 5), Text(l, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold))])));
 }
 
