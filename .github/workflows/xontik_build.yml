@@ -8,12 +8,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          cache: true # لتسريع البناء وتوفير الذاكرة
-      - run: |
-          flutter pub get
-          flutter build apk --debug --no-tree-shake-icons
-      - name: Upload
-        uses: actions/upload-artifact@v3 # الإصدار المستقر v3
+      - run: flutter pub get
+      - run: flutter build apk --debug
+      - name: Upload Final APK
+        uses: actions/upload-artifact@v4 # الحل هنا: الإصدار v4 حصراً
         with:
-          name: Xontik-App
-          path: build/app/outputs/flutter-apk/*.apk
+          name: Xontik-Professional-App
+          path: build/app/outputs/flutter-apk/app-debug.apk
