@@ -16,12 +16,12 @@ class XontikMasterpiece extends StatelessWidget {
           unselectedItemColor: Colors.grey,
         ),
       ),
-      home: const AuthScreen(), // البداية من واجهة التسجيل الراقية
+      home: const AuthScreen(),
     );
   }
 }
 
-// --- 1. واجهة تسجيل دخول راقية (TikTok Style) ---
+// --- 1. واجهة تسجيل الدخول ---
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
   @override
@@ -64,7 +64,7 @@ class AuthScreen extends StatelessWidget {
   );
 }
 
-// --- 2. الهيكل الرئيسي (كما أحببت) مع تفعيل الصفحات ---
+// --- 2. الهيكل الرئيسي ---
 class MainTikTokScaffold extends StatefulWidget {
   const MainTikTokScaffold({super.key});
   @override
@@ -73,14 +73,7 @@ class MainTikTokScaffold extends StatefulWidget {
 
 class _MainTikTokScaffoldState extends State<MainTikTokScaffold> {
   int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    const TikTokFeedView(),
-    const Center(child: Text("اكتشف الصيحات الجديدة")),
-    const Center(child: Text("الكاميرا قيد العمل")),
-    const Center(child: Text("صندوق الوارد (الرسائل)")),
-    const ProfileScreen(), // الملف الشخصي المطور
-  ];
+  final List<Widget> _pages = [const TikTokFeedView(), const Center(child: Text("اكتشف")), const Center(child: Text("الكاميرا")), const Center(child: Text("الرسائل")), const ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -108,30 +101,20 @@ class _MainTikTokScaffoldState extends State<MainTikTokScaffold> {
   ]));
 }
 
-// --- 3. الملف الشخصي الاحترافي (المحفظة والبث في الزاوية) ---
+// --- 3. الملف الشخصي مع قائمة الإعدادات المتكاملة ---
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text("Xontik_Creator", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
         actions: [
-          Column(
-            children: [
-              GestureDetector(
-                onTap: () => _showWallet(context), // تفعيل المحفظة
-                child: const Padding(padding: EdgeInsets.only(right: 10, top: 5), child: Icon(Icons.account_balance_wallet_outlined, size: 20, color: Colors.amber)),
-              ),
-              GestureDetector(
-                onTap: () {}, // تفعيل البث
-                child: const Padding(padding: EdgeInsets.only(right: 10, top: 2), child: Icon(Icons.live_tv, size: 18, color: Colors.redAccent)),
-              ),
-            ],
-          ),
-          const Icon(Icons.menu),
-          const SizedBox(width: 15),
+          IconButton(icon: const Icon(Icons.menu), onPressed: () => _showSettingsMenu(context)),
+          const SizedBox(width: 10),
         ],
       ),
       body: Column(
@@ -143,7 +126,11 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [_stat("150", "أتابع"), _stat("1.5M", "متابعين"), _stat("10M", "إعجاب")]),
           const SizedBox(height: 20),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [_btn("تعديل الملف"), const SizedBox(width: 5), _btn("مشاركة الملف")]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            _actionBtn(context, "تعديل الملف", () => Navigator.push(context, MaterialPageRoute(builder: (c) => const EditProfileScreen()))),
+            const SizedBox(width: 5),
+            _actionBtn(context, "مشاركة الملف", () {}),
+          ]),
           const SizedBox(height: 20),
           const Divider(color: Colors.white12),
           Expanded(child: GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1), itemCount: 12, itemBuilder: (c, i) => Container(color: Colors.white10, child: const Icon(Icons.play_arrow, color: Colors.white24)))),
@@ -152,72 +139,111 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _stat(String v, String l) => Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [Text(v, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), Text(l, style: const TextStyle(color: Colors.grey, fontSize: 13))]));
-  Widget _btn(String t) => Container(padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10), decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold)));
+  void _showSettingsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        builder: (_, controller) => ListView(
+          controller: controller,
+          children: [
+            const Padding(padding: EdgeInsets.all(15), child: Center(child: Text("الإعدادات والخصوصية", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))),
+            _menuItem(Icons.live_tv, "البث المباشر (LIVE)", Colors.redAccent, () {}),
+            _menuItem(Icons.account_balance_wallet, "المحفظة (الأرباح)", Colors.amber, () => _showWallet(context)),
+            _menuItem(Icons.person_outline, "إدارة الحساب", Colors.white, () {}),
+            _menuItem(Icons.lock_outline, "الخصوصية", Colors.white, () {}),
+            _menuItem(Icons.language, "اللغة", Colors.white, () {}),
+            _menuItem(Icons.report_problem_outlined, "الإبلاغ عن مشكلة", Colors.white, () {}),
+            _menuItem(Icons.help_outline, "مركز المساعدة", Colors.white, () {}),
+            _menuItem(Icons.security, "مركز الأمان", Colors.white, () {}),
+            const Divider(),
+            _menuItem(Icons.logout, "تسجيل الخروج", Colors.red, () {}),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _showWallet(BuildContext context) {
-    showModalBottomSheet(context: context, builder: (c) => Container(
-      color: Colors.grey[900],
-      padding: const EdgeInsets.all(25),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("المحفظة الرقمية", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        ListTile(leading: const Icon(Icons.currency_bitcoin, color: Colors.orange), title: const Text("ربط محفظة العملات"), onTap: () {}),
-        ListTile(leading: const Icon(Icons.credit_card, color: Colors.blue), title: const Text("إضافة بطاقة بنكية"), onTap: () {}),
+    showDialog(context: context, builder: (c) => AlertDialog(
+      backgroundColor: Colors.grey[900],
+      title: const Text("ربط وسائل الدفع"),
+      content: Column(mainAxisSize: MainAxisSize.min, children: [
+        _paymentOption(Icons.paypal, "PayPal", Colors.blue),
+        _paymentOption(Icons.account_balance, "حساب بنكي", Colors.green),
+        _paymentOption(Icons.currency_bitcoin, "محفظة رقمية", Colors.orange),
       ]),
     ));
   }
+
+  Widget _paymentOption(IconData i, String t, Color c) => ListTile(leading: Icon(i, color: c), title: Text(t), onTap: () {});
+  Widget _menuItem(IconData i, String t, Color c, VoidCallback o) => ListTile(leading: Icon(i, color: c), title: Text(t), onTap: o);
+  Widget _stat(String v, String l) => Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [Text(v, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), Text(l, style: const TextStyle(color: Colors.grey, fontSize: 13))]));
+  Widget _actionBtn(BuildContext context, String t, VoidCallback o) => GestureDetector(onTap: o, child: Container(padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10), decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold))));
 }
 
-// --- 4. محرك الفيديوهات التفاعلي بالكامل (Feed) ---
-class TikTokFeedView extends StatelessWidget {
-  const TikTokFeedView({super.key});
+// --- 4. واجهة تعديل الملف الشخصي (التي طلبتها بدقة) ---
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({super.key});
   @override
-  Widget build(BuildContext context) => PageView.builder(scrollDirection: Axis.vertical, itemBuilder: (context, index) => VideoItem(index: index));
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class VideoItem extends StatefulWidget {
-  final int index;
-  const VideoItem({super.key, required this.index});
-  @override
-  State<VideoItem> createState() => _VideoItemState();
-}
-
-class _VideoItemState extends State<VideoItem> {
-  bool isLiked = false;
-  bool isFollowed = false;
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  final TextEditingController _bioController = TextEditingController(text: "مبدع في XONTIK");
+  final TextEditingController _nameController = TextEditingController(text: "Xontik_Official");
 
   @override
   Widget build(BuildContext context) {
-    return Stack(fit: StackFit.expand, children: [
-      Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.blueGrey[900]!, Colors.black]))),
-      const Positioned(top: 40, left: 0, right: 0, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("أتابع", style: TextStyle(color: Colors.white54)), SizedBox(width: 20), Text("لك", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))])),
-      Positioned(left: 10, bottom: 100, child: Column(children: [
-        _buildProfile(),
-        const SizedBox(height: 20),
-        _action(isLiked ? Icons.favorite : Icons.favorite_border, "5.2M", isLiked ? Colors.red : Colors.white, () => setState(() => isLiked = !isLiked)),
-        _action(Icons.chat_bubble, "15.4K", Colors.white, () {}),
-        _action(Icons.bookmark, "90K", Colors.white, () {}),
-        _action(Icons.share, "مشاركة", Colors.white, () {}),
-        const SizedBox(height: 20),
-        _musicDisc(),
-      ])),
-      Positioned(right: 15, bottom: 25, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text("@Xontik_Creator", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        const SizedBox(height: 10),
-        const Text("تم تفعيل كافة الأزرار والمميزات بنجاح! 🔥"),
-        const SizedBox(height: 10),
-        Row(children: const [Icon(Icons.music_note, size: 15), Text("الصوت الأصلي - Xontik Pro")]),
-      ])),
-    ]);
+    return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.black, title: const Text("تعديل الملف الشخصي")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const CircleAvatar(radius: 50, child: Icon(Icons.camera_alt, size: 30)),
+            const SizedBox(height: 10),
+            const Text("تغيير الصورة", style: TextStyle(color: Colors.white54)),
+            const SizedBox(height: 30),
+            _editField("الاسم", _nameController, "يمكنك تغيير اسمك مرة واحدة كل 30 يوم."),
+            const SizedBox(height: 20),
+            _editField("السيرة الذاتية", _bioController, "أخبر العالم عنك (حد أقصى 80 حرفاً)", maxLength: 80),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFeb3349), minimumSize: const Size(double.infinity, 50)),
+              child: const Text("حفظ التغييرات"),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildProfile() => Stack(clipBehavior: Clip.none, children: [
-    const CircleAvatar(radius: 24, backgroundColor: Colors.white, child: CircleAvatar(radius: 22, backgroundColor: Colors.black, child: Icon(Icons.person))),
-    if (!isFollowed) Positioned(bottom: -8, left: 14, child: GestureDetector(onTap: () => setState(() => isFollowed = true), child: Container(decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.add, size: 20))))
-  ]);
+  Widget _editField(String label, TextEditingController ctrl, String hint, {int? maxLength}) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(color: Colors.grey)),
+      TextField(
+        controller: ctrl,
+        maxLength: maxLength,
+        decoration: InputDecoration(helperText: hint, helperMaxLines: 2, enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white12))),
+      ),
+    ],
+  );
+}
 
-  Widget _action(IconData i, String l, Color c, VoidCallback o) => GestureDetector(onTap: o, child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Column(children: [Icon(i, size: 35, color: c), Text(l, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold))])));
-  Widget _musicDisc() => Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white24, width: 8), gradient: const SweepGradient(colors: [Colors.black, Colors.grey, Colors.black])), child: const Icon(Icons.music_note, size: 20));
+// --- محرك الفيديوهات (Feed) ---
+class TikTokFeedView extends StatelessWidget {
+  const TikTokFeedView({super.key});
+  @override
+  Widget build(BuildContext context) => PageView.builder(scrollDirection: Axis.vertical, itemBuilder: (context, index) => Stack(fit: StackFit.expand, children: [
+    Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.blueGrey[900]!, Colors.black], begin: Alignment.topCenter))),
+    Positioned(left: 10, bottom: 100, child: Column(children: const [Icon(Icons.favorite, size: 40), Text("2M"), SizedBox(height: 20), Icon(Icons.chat_bubble, size: 40), Text("15K")])),
+    Positioned(right: 15, bottom: 25, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [Text("@Xontik_Creator", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), Text("تم تحديث كافة أنظمة الخصوصية والمحفظة! 🔥")])),
+  ]));
 }
 
